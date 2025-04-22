@@ -1,0 +1,30 @@
+{
+  "name": "chat-application",
+  "version": "1.0.0",
+  "description": "Real-time chat application with WebSocket support",
+  "main": "websocket_servers/websocket.py",
+  "scripts": {
+    "start": "node websocket_servers/server.js",
+    "start:py": "python websocket_servers/websocket.py"
+  },
+  "dependencies": {
+    "ws": "^8.13.0",
+    "socket.io": "^4.7.2",
+    "express": "^4.18.2",
+    "http": "^0.0.1-security"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "keywords": [
+    "chat",
+    "websocket",
+    "real-time",
+    "socket.io"
+  ],
+  "author": "",
+  "license": "MIT"
+}
