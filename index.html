@@ -56,6 +56,34 @@
         button:hover {
             background-color: #0056b3;
         }
+        #userListSidebar {
+            position: fixed;
+            right: 0;
+            top: 0;
+            width: 200px;
+            height: 100vh;
+            background: #f7f7f7;
+            border-left: 1px solid #ddd;
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+        }
+        .top-bar-controls {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            justify-content: flex-end;
+            margin: 8px 0;
+        }
+        #emojiPicker {
+            display: none;
+            position: absolute;
+            background: #fff;
+            border: 1px solid #ccc;
+            padding: 10px;
+            border-radius: 8px;
+            z-index: 1000;
+        }
     </style>
 </head>
 <body>
@@ -64,10 +92,10 @@
     <script defer src = "http://192.168.1.113:3001/chat/socket.io/socket.io.js" id="dynamic-script-2"></script>
 
 <!-- User list sidebar -->
-<aside id="userListSidebar" aria-label="User List" tabindex="0" style="position:fixed;right:0;top:0;width:200px;height:100vh;background:#f7f7f7;border-left:1px solid #ddd;overflow-y:auto;z-index:1000;display:none;"></aside>
+<aside id="userListSidebar" aria-label="User List" tabindex="0"></aside>
 
 <!-- Theming toggle and language selector -->
-<div style="display:flex;gap:12px;align-items:center;justify-content:flex-end;margin:8px 0;">
+<div class="top-bar-controls">
   <button id="themeToggle" aria-label="Toggle dark mode">🌓</button>
   <select id="langSelect" aria-label="Select language">
     <option value="en">English</option>
@@ -82,7 +110,7 @@
         <button id="emojiBtn" title="Add emoji" tabindex="0">😊</button>
         <button id="sendButton" tabindex="0">Send</button>
     </div>
-    <div id="emojiPicker" style="display:none; position:absolute; background:#fff; border:1px solid #ccc; padding:10px; border-radius:8px; z-index:1000;">
+    <div id="emojiPicker">
       <button class="emoji-choice" tabindex="0">😀</button>
       <button class="emoji-choice" tabindex="0">😂</button>
       <button class="emoji-choice" tabindex="0">😍</button>

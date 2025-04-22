@@ -1,3 +1,42 @@
+// --- Modularized Imports ---
+import { setCurrentUser, renderUserList } from './modules/user.js';
+import { sendMessage, sendReaction, handleMessage } from './modules/chat.js';
+import { sendAdminAction } from './modules/admin.js';
+import { appendMessage, appendSystemMessage, showError, addReactionToMessage } from './modules/ui.js';
+import { sanitizeInput, generateMessageId } from './modules/utils.js';
+
+// --- WebSocket Setup ---
+const socket = new WebSocket('ws://' + window.location.hostname + ':6969');
+
+socket.onopen = () => {
+  // Join with user info (prompt or modal in real app)
+  const username = prompt('Enter your username:');
+  setCurrentUser(username);
+  socket.send(JSON.stringify({ type: 'join', username }));
+};
+
+socket.onmessage = (event) => {
+  let msg;
+  try {
+    msg = JSON.parse(event.data);
+  } catch {
+    return;
+  }
+  if (msg.type === 'user-list') {
+    renderUserList(msg.users);
+  } else {
+    handleMessage(msg, socket);
+  }
+};
+
+// --- UI Event Handlers (simplified for modular demo) ---
+document.getElementById('sendButton').onclick = () => {
+  const input = document.getElementById('messageInput');
+  sendMessage(socket, sanitizeInput(input.value));
+  input.value = '';
+};
+// Add admin and reaction event handlers as needed...
+
 // --- User Join Modal Logic ---
 let currentUser = null;
 let currentAvatar = null;
