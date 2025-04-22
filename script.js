@@ -2,6 +2,13 @@
 let currentUser = null;
 let currentAvatar = null;
 
+// Sanitize input to prevent XSS
+function sanitizeInput(input) {
+  const div = document.createElement('div');
+  div.textContent = input;
+  return div.innerHTML;
+}
+
 window.addEventListener('DOMContentLoaded', () => {
   const joinModal = document.getElementById('joinModal');
   const joinBtn = document.getElementById('joinBtn');
@@ -9,7 +16,7 @@ window.addEventListener('DOMContentLoaded', () => {
   const joinAvatar = document.getElementById('joinAvatar');
 
   joinBtn.onclick = function() {
-    const name = joinName.value.trim();
+    const name = sanitizeInput(joinName.value.trim());
     if (!name) {
       alert('Please enter your name.');
       return;
@@ -206,7 +213,7 @@ function stringToColor(str) {
 // When sending a message, include avatar
 messageForm.addEventListener('send', (e) => {
     e.preventDefault();
-    const message = messageInput.value;
+    const message = sanitizeInput(messageInput.value);
     const msgObj = { id: generateMessageId(), text: message, sender: currentUser, avatar: currentAvatar };
     appendMessage(msgObj);
     socket.emit('chat-message', msgObj);
@@ -241,7 +248,7 @@ socket.on('user-disconnected', data => {
 // Event listneer to display messages, when a new message is received it will not clear the previous messages
 messageForm.addEventListener('send', (e) => {
     e.preventDefault();
-    const message = messageInput.value;
+    const message = sanitizeInput(messageInput.value);
     const msgObj = { id: generateMessageId(), text: message, sender: currentUser, avatar: currentAvatar };
     appendMessage(msgObj);
     socket.emit('chat-message', msgObj);
@@ -306,14 +313,15 @@ socket.onclose = (event) => {
 };
 
 // Event listener for errors
-socket.onerror = (error) => {
-    console.error("WebSocket error:", error);
+socket.onerror = function(err) {
+    console.error('WebSocket error:', err);
+    document.getElementById('messages').innerHTML += '<div class="msg-status error">WebSocket error occurred</div>';
 };
 
 // Send message to the server when the button is clicked
 document.getElementById("sendButton").addEventListener("click", () => {
     const messageInput = document.getElementById("messageInput");
-    const message = messageInput.value;
+    const message = sanitizeInput(messageInput.value);
     console.log("[!] sending message: ", message)
     socket.send(message); // Send the message to the server
     messageInput.value = ""; // Clear the input field
@@ -353,4 +361,135 @@ emojiPicker.addEventListener('click', function(e) {
         emojiPicker.style.display = 'none';
     }
 });
-// --- End Emoji Picker ---
+
+// --- User List Logic ---
+socket.on('user-list', function(users) {
+  const sidebar = document.getElementById('userListSidebar');
+  sidebar.innerHTML = '<h3 style="margin:12px;">Users</h3>' + users.map(u => `<div class="user-entry">${sanitizeInput(u.name)}</div>`).join('');
+  sidebar.style.display = 'block';
+});
+// Request user list on connect
+socket.on('connect', function() {
+  socket.emit('get-user-list');
+});
+// --- End User List Logic ---
+
+// --- Keyboard Navigation & Focus ---
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Tab') {
+    // Custom focus outlines for accessibility
+    document.body.classList.add('user-tabbing');
+  }
+});
+// --- End Keyboard Navigation ---
+
+// --- Avatar Preview ---
+document.getElementById('joinAvatar').addEventListener('change', function(e) {
+  const file = e.target.files[0];
+  if (file && file.type.startsWith('image/')) {
+    const reader = new FileReader();
+    reader.onload = function(ev) {
+      let preview = document.getElementById('avatarPreview');
+      if (!preview) {
+        preview = document.createElement('img');
+        preview.id = 'avatarPreview';
+        preview.style = 'width:48px;height:48px;border-radius:50%;margin:8px auto;display:block;';
+        document.getElementById('joinModal').querySelector('div').appendChild(preview);
+      }
+      preview.src = ev.target.result;
+    };
+    reader.readAsDataURL(file);
+  }
+});
+// --- End Avatar Preview ---
+
+// --- Input Sanitization (already present, ensure used everywhere) ---
+// --- Rate Limiting ---
+let lastMessageTime = 0;
+const MESSAGE_RATE_LIMIT = 1000; // ms
+messageForm.addEventListener('send', (e) => {
+  const now = Date.now();
+  if (now - lastMessageTime < MESSAGE_RATE_LIMIT) {
+    alert('You are sending messages too quickly.');
+    return;
+  }
+  lastMessageTime = now;
+  // ... rest of handler ...
+});
+// --- End Rate Limiting ---
+
+// --- Avatar Validation ---
+document.getElementById('joinAvatar').addEventListener('change', function(e) {
+  const file = e.target.files[0];
+  if (file && (!file.type.startsWith('image/') || file.size > 2 * 1024 * 1024)) {
+    alert('Please select a valid image file (max 2MB).');
+    e.target.value = '';
+  }
+});
+// --- End Avatar Validation ---
+
+// --- Message History (localStorage) ---
+function saveMessageToHistory(msgObj) {
+  let history = JSON.parse(localStorage.getItem('chatHistory') || '[]');
+  history.push(msgObj);
+  if (history.length > 100) history = history.slice(-100); // Keep last 100
+  localStorage.setItem('chatHistory', JSON.stringify(history));
+}
+function loadMessageHistory() {
+  let history = JSON.parse(localStorage.getItem('chatHistory') || '[]');
+  history.forEach(msgObj => appendMessage(msgObj));
+}
+window.addEventListener('DOMContentLoaded', loadMessageHistory);
+// Save sent and received messages
+socket.on('chat-message', function(msgObj) {
+  saveMessageToHistory(msgObj);
+});
+messageForm.addEventListener('send', (e) => {
+  const msgObj = { id: generateMessageId(), text: sanitizeInput(messageInput.value), sender: currentUser, avatar: currentAvatar };
+  saveMessageToHistory(msgObj);
+});
+// --- End Message History ---
+
+// --- Browser Notifications ---
+function notifyUser(title, msg) {
+  if (Notification.permission === 'granted') {
+    new Notification(title, { body: msg });
+  }
+}
+if ("Notification" in window && Notification.permission !== 'granted') {
+  Notification.requestPermission();
+}
+socket.on('chat-message', function(msgObj) {
+  if (msgObj.sender !== currentUser) notifyUser('New message', msgObj.text);
+});
+// --- End Browser Notifications ---
+
+// --- Theming (Light/Dark Mode) ---
+const themeToggle = document.getElementById('themeToggle');
+themeToggle && themeToggle.addEventListener('click', () => {
+  document.body.classList.toggle('dark-theme');
+  localStorage.setItem('theme', document.body.classList.contains('dark-theme') ? 'dark' : 'light');
+});
+window.addEventListener('DOMContentLoaded', () => {
+  if (localStorage.getItem('theme') === 'dark') document.body.classList.add('dark-theme');
+});
+// --- End Theming ---
+
+// --- Language Selector (i18n) ---
+const langSelect = document.getElementById('langSelect');
+const translations = {
+  en: { join: 'Join', send: 'Send', placeholder: 'Type a message...' },
+  es: { join: 'Unirse', send: 'Enviar', placeholder: 'Escribe un mensaje...' }
+};
+function setLanguage(lang) {
+  document.getElementById('joinBtn').innerText = translations[lang].join;
+  document.getElementById('sendButton').innerText = translations[lang].send;
+  document.getElementById('messageInput').placeholder = translations[lang].placeholder;
+}
+langSelect && langSelect.addEventListener('change', (e) => setLanguage(e.target.value));
+window.addEventListener('DOMContentLoaded', () => {
+  const lang = localStorage.getItem('lang') || 'en';
+  setLanguage(lang);
+  langSelect && (langSelect.value = lang);
+});
+// --- End i18n ---

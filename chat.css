@@ -82,6 +82,71 @@ button:hover {
     to { opacity: 1; transform: translateY(0); }
 }
 
+/* Emoji picker styles */
+#emojiPicker {
+  display: none;
+  position: absolute;
+  background: #fff;
+  border: 1px solid #ccc;
+  padding: 10px;
+  border-radius: 8px;
+  z-index: 1000;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+#emojiPicker .emoji-choice {
+  font-size: 24px;
+  padding: 6px 10px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  border-radius: 6px;
+  margin: 2px;
+  transition: background 0.2s;
+}
+#emojiPicker .emoji-choice:focus {
+  outline: 2px solid #0056b3;
+  background: #eaf1fb;
+}
+
+/* Sidebar for user list */
+#userListSidebar {
+  position: fixed;
+  right: 0;
+  top: 0;
+  width: 200px;
+  height: 100vh;
+  background: #f7f7f7;
+  border-left: 1px solid #ddd;
+  overflow-y: auto;
+  z-index: 1000;
+  display: none;
+}
+#userListSidebar .user-entry {
+  padding: 8px 12px;
+  border-bottom: 1px solid #eee;
+  font-size: 15px;
+}
+#userListSidebar h3 {
+  margin: 12px 0 8px 12px;
+  font-size: 17px;
+  color: #333;
+}
+
+/* Focus outline for accessibility */
+.user-tabbing :focus {
+  outline: 2px solid #0056b3 !important;
+  outline-offset: 2px;
+}
+
+/* Avatar preview styling */
+#avatarPreview {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  margin: 8px auto;
+  display: block;
+}
+
 @media (max-width: 600px) {
     .chat-container {
         width: 100%;

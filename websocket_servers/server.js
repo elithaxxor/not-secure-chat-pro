@@ -1,8 +1,9 @@
 // Import the WebSocket library
 const WebSocket = require('ws');
 
-// Create a WebSocket server on port 6969
-const wss = new WebSocket.Server({ port: 6969 });
+// Use environment variable or default for port
+const PORT = process.env.WS_PORT || 6969;
+const wss = new WebSocket.Server({ port: PORT });
 
 // Event listener for new connections
 wss.on('connection', (ws) => {
@@ -10,9 +11,9 @@ wss.on('connection', (ws) => {
 
     // Event listener for incoming messages
     ws.on('message', (message) => {
-        console.log('Received:', message);
-        // Echo the message back to the client
-        ws.send(`Server received: ${message}`);
+        // Basic echo with timestamp
+        const now = new Date();
+        ws.send(`[${now.toISOString()}] ${message}`);
     });
 
     // Event listener for when the connection is closed

@@ -1,0 +1,19 @@
+# Node modules
+node_modules/
+
+# Logs
+*.log
+
+# Sensitive scripts
+reverse_shell.ps1
+reverse_shell copy.ps1
+
+# Python cache
+__pycache__/
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Misc
+.env
