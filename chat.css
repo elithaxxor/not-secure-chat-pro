@@ -160,6 +160,75 @@ button:hover {
   display: block;
 }
 
+/* Admin controls */
+.controls-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+#userSelect {
+  padding: 6px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  background: #fff;
+}
+
+#muteBtn, #kickBtn, #banBtn {
+  padding: 6px 12px;
+  background: #e2e2e2;
+  color: #222;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+#muteBtn:hover, #kickBtn:hover, #banBtn:hover {
+  background: #ffb3b3;
+}
+
+.error-banner {
+  background: #ffdddd;
+  color: #a00;
+  padding: 10px 18px;
+  border-radius: 6px;
+  border: 1px solid #f99;
+  margin-bottom: 12px;
+  font-weight: bold;
+  font-size: 1rem;
+  position: fixed;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2000;
+  display: none;
+}
+
+.message .reactions {
+  margin-left: 10px;
+  display: inline-block;
+}
+
+.reaction-btn {
+  font-size: 18px;
+  background: #f0f0f0;
+  border: 1px solid #ccc;
+  border-radius: 50%;
+  margin: 0 2px;
+  cursor: pointer;
+  padding: 2px 6px;
+  transition: background 0.2s, border 0.2s;
+}
+
+.reaction-btn:focus,
+.reaction-btn:hover {
+  background: #eaf1fb;
+  border-color: #007bff;
+  outline: 2px solid #0056b3;
+}
+
 @media (max-width: 600px) {
     .chat-container {
         width: 100%;

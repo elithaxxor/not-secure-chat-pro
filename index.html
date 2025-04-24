@@ -105,6 +105,14 @@
 
 <div class="chat-container">
     <div class="messages" id="messages" aria-live="polite" tabindex="0"></div>
+    <div class="controls-row">
+      <select id="userSelect" aria-label="Send private message to user">
+        <option value="">Everyone (public)</option>
+      </select>
+      <button id="muteBtn" style="display:none;" aria-label="Mute selected user">Mute</button>
+      <button id="kickBtn" style="display:none;" aria-label="Kick selected user">Kick</button>
+      <button id="banBtn" style="display:none;" aria-label="Ban selected user">Ban</button>
+    </div>
     <div class="controls">
         <input type="text" id="messageInput" placeholder="Type a message..." tabindex="0">
         <button id="emojiBtn" title="Add emoji" tabindex="0">😊</button>

@@ -30,7 +30,20 @@
 - Avatar upload validation
 - Rate limiting for spam prevention
 
----
+## [Unreleased]
+- Full modularization of frontend JavaScript (user.js, chat.js, admin.js, ui.js, utils.js)
+- Private messaging and admin controls (mute, kick, ban) implemented
+- Emoji reactions UI and backend support
+- Accessibility improvements: ARIA, keyboard navigation, color contrast
+- Responsive UI and theming (light/dark mode)
+- Language selector (English, Español)
+- Avatar upload/validation and user list sidebar
+- Local message history (localStorage)
+- Browser notifications for new messages
+- Comprehensive Cypress tests (including a11y with axe-core)
+- Documentation update (README, testing, accessibility)
 
 ## [Earlier]
-- Initial chat app implementation
+- Initial chat app with WebSocket backend
+- Basic message sending/receiving
+- Minimal UI

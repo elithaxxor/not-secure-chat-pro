@@ -1,82 +1,68 @@
 # Not Secure Chat Pro
 
-A real-time chat application with WebSocket and Socket.io support, featuring accessibility, emoji reactions, user list, dark mode, i18n, and more.
+A modular, real-time chat application with private messaging, admin controls, emoji reactions, accessibility, and comprehensive testing.
+
+---
 
 ## Features
-- Real-time chat using WebSocket and Socket.io
-- Custom CAPTCHA with accessible alternative
-- Emoji picker and message reactions
-- Responsive design for desktop and mobile
-- Avatar support with preview and validation
-- Public and local IP display
-- User list sidebar (real-time)
-- Private messaging (in progress)
-- Message history (localStorage)
-- Browser notifications
-- Dark mode (theming toggle)
-- Language selector (English/Spanish, i18n-ready)
-- Admin controls (planned)
+- **Real-time chat** (WebSocket backend)
+- **Private messaging** between users
+- **Admin controls:** mute, kick, ban users
+- **Emoji reactions** to messages
+- **User list sidebar** with live updates
+- **Modular frontend code** (ES modules)
+- **Accessibility:** ARIA labels, keyboard navigation, color contrast
+- **Responsive UI** for desktop and mobile
+- **Theming:** Light/Dark mode toggle
+- **Language selector** (English, Español)
+- **Avatar upload & validation**
+- **Local message history** (with localStorage)
+- **Browser notifications** for new messages
+- **Comprehensive Cypress tests** (including accessibility via axe-core)
 
-## Accessibility
-- All buttons have accessible labels (aria-label or visible text)
-- Images include descriptive alt attributes
-- Keyboard navigation and focus outlines
-- Live region for new messages
-- Accessible CAPTCHA option
-
-## Security
-- All user input is sanitized
-- Avatar uploads validated (type/size)
-- Client-side rate limiting for spam prevention
+---
 
 ## Getting Started
 
 ### Prerequisites
-- Node.js (v14+ recommended)
-- Python 3 (optional, for Python WebSocket server)
+- Node.js (for Cypress tests)
+- Modern browser (Chrome, Firefox, Safari, Edge)
 
-### Setup
-1. Clone this repository:
+### Running the Chat App
+1. Start the WebSocket server (`server.js` in `websocket_servers/`):
    ```bash
-   git clone https://github.com/elithaxxor/not-secure-chat-pro.git
-   cd not-secure-chat-pro
-   ```
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-3. Start the Node.js WebSocket server:
-   ```bash
-   npm start
-   # or
    node websocket_servers/server.js
    ```
-4. (Optional) Start the Python WebSocket server:
+2. Open `index.html` in your browser (or serve via a local web server).
+
+### Running Tests
+1. Install Cypress (if not already):
    ```bash
-   cd websocket_servers
-   python websocket.py
+   npm install cypress cypress-axe --save-dev
    ```
-5. Serve the front-end files (e.g., with Python):
+2. Run all tests:
    ```bash
-   python3 -m http.server 3000
+   npx cypress run
    ```
-6. Open your browser to `http://localhost:3000`.
 
-### Docker
-To run with Docker:
-```bash
-docker build -t chat-app .
-docker run -p 3000:3000 -p 3001:3001 chat-app
-```
+---
 
-### CI/CD
-- GitHub Actions workflow for linting and basic tests is included in `.github/workflows/ci.yml`.
+## Accessibility & Manual Testing Checklist
+- [x] Keyboard navigation (Tab, Enter, Escape)
+- [x] Screen reader support (ARIA labels/roles)
+- [x] Color contrast meets WCAG AA
+- [x] Error banners are accessible
+- [x] Responsive on all devices
+- [x] All features work on Chrome, Firefox, Safari, Edge, iOS, Android
 
-## Changelog
-See [CHANGELOG.md](CHANGELOG.md) for a list of changes and new features.
+---
 
-## Security Warning
-This project is for educational/demo purposes and is **not secure for production**. Do not use in production environments.
+## Contributing
+- Follow modular code style (see `modules/` directory)
+- Write or update Cypress tests for new features
+- Document changes in `CHANGELOG.md`
+
+---
 
 ## License
 MIT
